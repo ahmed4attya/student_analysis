@@ -20,7 +20,7 @@ def check_wkhtmltopdf():
 st.write("Path to wkhtmltopdf:", check_wkhtmltopdf())
 
 # استخدام المسار الصحيح على نظام Linux
-config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+# config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
 
 # تعيين الخط الافتراضي لتجنب مشاكل الخطوط
 rcParams['font.sans-serif'] = ['Arial']
