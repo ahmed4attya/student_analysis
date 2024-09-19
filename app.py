@@ -8,6 +8,8 @@ from matplotlib import font_manager
 from matplotlib import rcParams
 import subprocess
 
+plt.rcParams['text.direction'] = 'rtl'
+
 def check_wkhtmltopdf():
     try:
         result = subprocess.run(['which', 'wkhtmltopdf'], capture_output=True, text=True)
