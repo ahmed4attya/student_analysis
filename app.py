@@ -86,47 +86,53 @@ if uploaded_file is not None:
     st.plotly_chart(fig3)
 
     # تصدير التقرير إلى PDF
-    st.write("### تصدير التقرير بصيغة PDF")
+st.write("### تصدير التقرير بصيغة PDF")
 
-    if st.button("تصدير إلى PDF"):
-        # تحويل الرسوم البيانية إلى صور Base64
-        def fig_to_base64(fig):
-            buf = io.BytesIO()
-            fig.write_image(buf, format='png')
-            buf.seek(0)
-            return base64.b64encode(buf.getvalue()).decode()
+if st.button("تصدير إلى PDF"):
+    # تحويل الرسوم البيانية إلى HTML
+    bar_chart_html = fig_bar.to_html(full_html=False, include_plotlyjs='cdn')
+    percentage_chart_html = fig_percentage.to_html(full_html=False, include_plotlyjs='cdn')
+    pie_chart_html = fig_pie.to_html(full_html=False, include_plotlyjs='cdn')
 
-        bar_chart_image = fig_to_base64(fig)
-        pie_chart_image = fig_to_base64(fig3)
+    # إنشاء التقرير HTML لتضمين الرسوم البيانية
+    report_html = f"""
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="direction: rtl;">
+    <h1>تقرير نتائج الطلاب</h1>
+    <p><strong>اسم المدرسة:</strong> {school_name}</p>
+    <p><strong>العام الدراسي:</strong> {academic_year}</p>
+    <p><strong>نوع التقرير:</strong> {report_type}</p>
+    <p><strong>الصف:</strong> {grade}</p>
+    <p><strong>الفصل:</strong> {class_section}</p>
+    <p><strong>الفترة:</strong> {period}</p>
+    <h2>عدد الطلاب الحاصلين على تقدير معين لكل مادة</h2>
+    {summary_table.to_html()}
+    <h2>نسبة الطلاب الحاصلين على تقدير معين لكل مادة</h2>
+    {percentage_table.to_html()}
+    <h2>الطلاب الحاصلين على تقدير غير مجتاز</h2>
+    {non_passed_students.to_html()}
+    <h2>إحصائية التحليل</h2>
+    {stats_df.to_html()}
+    
+    <h2>رسم بياني حسب عدد الطلاب لكل مادة</h2>
+    {bar_chart_html}
+    
+    <h2>رسم بياني حسب نسبة الطلاب لكل مادة</h2>
+    {percentage_chart_html}
+    
+    <h2>رسم بياني دائري لتوزيع الدرجات</h2>
+    {pie_chart_html}
+    
+    </body>
+    </html>
+    """
 
-        report_html = f"""
-        <html>
-        <head><meta charset="utf-8"></head>
-        <body style="direction: rtl;">
-        <h1>تقرير نتائج الطلاب</h1>
-        <p><strong>اسم المدرسة:</strong> {school_name}</p>
-        <p><strong>العام الدراسي:</strong> {academic_year}</p>
-        <p><strong>نوع التقرير:</strong> {report_type}</p>
-        <p><strong>الصف:</strong> {grade}</p>
-        <p><strong>الفصل:</strong> {class_section}</p>
-        <p><strong>الفترة:</strong> {period}</p>
-        <h2>عدد الطلاب الحاصلين على تقدير معين لكل مادة</h2>
-        {summary_table.to_html()}
-        <h2>نسبة الطلاب الحاصلين على تقدير معين لكل مادة</h2>
-        {percentage_table.to_html()}
-        <h2>الطلاب الحاصلين على تقدير غير مجتاز</h2>
-        {non_passed_students.to_html()}
-        <h2>إحصائية التحليل</h2>
-        {stats_df.to_html()}
-        <h2>رسم بياني حسب عدد الطلاب لكل مادة</h2>
-        <img src="data:image/png;base64,{bar_chart_image}" alt="Bar Chart">
-        <h2>رسم بياني دائري لتوزيع الدرجات</h2>
-        <img src="data:image/png;base64,{pie_chart_image}" alt="Pie Chart">
-        </body>
-        </html>
-        """
-        
-        config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
-        pdf_output = pdfkit.from_string(report_html, False, configuration=config)
+    # إعداد مسار ملف wkhtmltopdf
+    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
 
-        st.download_button("تحميل التقرير بصيغة PDF", pdf_output, "تقرير_الطلاب.pdf", mime="application/pdf")
+    # إنشاء PDF من HTML
+    pdf_output = pdfkit.from_string(report_html, False, configuration=config)
+
+    # تقديم ملف PDF للتنزيل
+    st.download_button("تحميل التقرير بصيغة PDF", pdf_output, "تقرير_الطلاب.pdf", mime="application/pdf")
