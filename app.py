@@ -52,6 +52,19 @@ if uploaded_file is not None:
     # إضافة جدول إحصائية التحليل بجانب جدول الطلاب الحاصلين على تقدير غير مجتاز
     col3, col4 = st.columns(2)
 
+    # حساب إحصائيات التحليل بناءً على البيانات المدخلة
+    total_scores = df['الدرجة'].sum()  # مجموع الدرجات
+    student_count = df['الدرجة'].count()  # عدد الطلبة
+    average_score = df['الدرجة'].mean()  # المتوسط الحسابي
+    median_score = df['الدرجة'].median()  # الوسيط
+    mode_score = df['الدرجة'].mode()[0]  # الأكثر تكراراً
+    max_score = df['الدرجة'].max()  # أعلى درجة
+    min_score = df['الدرجة'].min()  # أقل درجة
+
+    # حساب نسبة التفوق ونسبة الضعف بناءً على حدود معينة
+    excellence_percentage = (df[df['الدرجة'] >= 85]['الدرجة'].count() / student_count) * 100  # نسبة التفوق
+    weakness_percentage = (df[df['الدرجة'] < 50]['الدرجة'].count() / student_count) * 100  # نسبة الضعف
+
     # جدول للطلاب الحاصلين على تقدير غير مجتاز
     non_passed_students = df[df['التقدير'] == 'غير مجتاز']
     with col3:
@@ -61,14 +74,14 @@ if uploaded_file is not None:
     # جدول إحصائية التحليل
     with col4:
         st.write("### إحصائية التحليل")
-        st.write("""
+        st.write(f"""
         | المؤشر           | القيمة       | المؤشر           | القيمة        |
         |------------------|--------------|------------------|---------------|
-        | مجموع الدرجات     | 530          | الأكثر تكراراً   | 40            |
-        | عدد الطلبة       | 14           | الوسيط           | 40            |
-        | المتوسط الحسابي   | 37.86        | نسبة التفوق      | 78.57%        |
-        | أعلى درجة        | 40           | نسبة الضعف       | 0.00%         |
-        | أقل درجة         | 25           |                  |               |
+        | مجموع الدرجات     | {total_scores}  | الأكثر تكراراً   | {mode_score}  |
+        | عدد الطلبة       | {student_count} | الوسيط           | {median_score} |
+        | المتوسط الحسابي   | {average_score:.2f} | نسبة التفوق      | {excellence_percentage:.2f}% |
+        | أعلى درجة        | {max_score}  | نسبة الضعف       | {weakness_percentage:.2f}% |
+        | أقل درجة         | {min_score}  |                  |               |
         """)
 
     # إضافة الفلتر لاختيار المادة والطلاب الضعاف
@@ -177,11 +190,13 @@ if uploaded_file is not None:
         </html>
         """
 
-        # إعداد مسار ملف wkhtmltopdf
-        config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+        # تصدير التقرير إلى ملف PDF
+        pdfkit.from_string(report_html, 'report.pdf')
 
-        # إنشاء PDF من HTML
-        pdf_output = pdfkit.from_string(report_html, False, configuration=config)
+        with open("report.pdf", "rb") as pdf_file:
+            PDFbyte = pdf_file.read()
 
-        # تقديم ملف PDF للتنزيل
-        st.download_button("تحميل التقرير بصيغة PDF", pdf_output, "تقرير_الطلاب.pdf", mime="application/pdf")
+        # تنزيل ملف PDF
+        b64 = base64.b64encode(PDFbyte).decode()
+        href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
+        st.markdown(href, unsafe_allow_html=True)
