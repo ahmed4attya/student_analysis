@@ -203,13 +203,13 @@ if uploaded_file is not None:
         </body>
         </html>
         """
+   # تحويل HTML إلى PDF باستخدام weasyprint
+    pdf_file = '/tmp/report.pdf'
+    weasyprint.HTML(string=report_html).write_pdf(pdf_file)
 
-        # تحويل HTML إلى PDF
-        pdfkit.from_string(report_html, '/tmp/report.pdf')
-
-        # تحميل الملف PDF
-        with open('/tmp/report.pdf', 'rb') as f:
-            PDFbyte = f.read()
-            b64 = base64.b64encode(PDFbyte).decode()
-            href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
-            st.markdown(href, unsafe_allow_html=True)
+    # تحميل الملف PDF
+    with open(pdf_file, 'rb') as f:
+        PDFbyte = f.read()
+        b64 = base64.b64encode(PDFbyte).decode()
+        href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
+        st.markdown(href, unsafe_allow_html=True)
