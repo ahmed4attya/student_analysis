@@ -84,6 +84,7 @@ if uploaded_file is not None:
     fig3 = go.Figure(data=[go.Pie(labels=summary_table.columns, values=summary_table.sum())])
     fig3.update_layout(title='توزيع الطلاب حسب التقدير')
     st.plotly_chart(fig3)
+
 # تصدير التقرير إلى PDF
 st.write("### تصدير التقرير بصيغة PDF")
 
