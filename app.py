@@ -43,7 +43,7 @@ if uploaded_file is not None:
     percentage_table = summary_table.div(summary_table.sum(axis=1), axis=0) * 100
     non_passed_students = df[df['التقدير'] == 'غير مجتاز']
 
-    # إضافة الجداول في التقرير
+    # عرض الجداول
     col1, col2 = st.columns(2)
     with col1:
         st.write("### عدد الطلاب الحاصلين على تقدير معين")
@@ -55,29 +55,55 @@ if uploaded_file is not None:
     st.write("### الطلاب الحاصلين على تقدير غير مجتاز")
     st.write(non_passed_students)
 
-    # إحصائية التحليل - إنشاء جدول باستخدام Plotly
-    analysis_data = {
-        " ": ["مجموع الدرجات", "عدد الطلبة", "المتوسط الحسابي", "اعلى درجة", "اقل درجة"],
-        "القيم": [530, 14, 37.86, 40, 25],
-        " ": ["الأكثر تكراراً", "الوسيط", "نسبة التفوق", "نسبة الضعف", ""],
-        "القيم": [40, 40, "78.57%", "0.00%", ""]
-    }
+    # رسم بياني باستخدام Plotly - عدد الطلاب لكل تقدير حسب المادة
+    fig1 = go.Figure()
+    for column in summary_table.columns:
+        fig1.add_trace(go.Bar(
+            x=summary_table.index,
+            y=summary_table[column],
+            name=column
+        ))
 
-    analysis_df = pd.DataFrame(analysis_data)
-    
-    fig = go.Figure(data=[go.Table(
-        header=dict(values=["", "القيم", "", "القيم"],
-                    align='center',
-                    fill_color='paleturquoise',
-                    font=dict(color='black', size=14)),
-        cells=dict(values=[analysis_df[" "], analysis_df["القيم"], analysis_df[" "], analysis_df["القيم"]],
-                   align='center',
-                   fill_color='lavender',
-                   font=dict(color='black', size=12))
-    )])
+    fig1.update_layout(
+        barmode='stack',
+        title='عدد الطلاب لكل تقدير حسب المادة',
+        xaxis_title='المادة',
+        yaxis_title='عدد الطلاب',
+        xaxis_tickangle=-45
+    )
 
-    st.write("### إحصائية التحليل")
-    st.plotly_chart(fig)
+    st.write("### رسم بياني حسب عدد الطلاب لكل مادة")
+    st.plotly_chart(fig1)
+
+    # رسم بياني باستخدام Plotly - نسبة الطلاب لكل تقدير حسب المادة
+    fig2 = go.Figure()
+    for column in percentage_table.columns:
+        fig2.add_trace(go.Bar(
+            x=percentage_table.index,
+            y=percentage_table[column],
+            name=column
+        ))
+
+    fig2.update_layout(
+        barmode='stack',
+        title='نسبة الطلاب لكل تقدير حسب المادة',
+        xaxis_title='المادة',
+        yaxis_title='نسبة الطلاب (%)',
+        xaxis_tickangle=-45
+    )
+
+    st.write("### رسم بياني حسب نسبة الطلاب لكل مادة")
+    st.plotly_chart(fig2)
+
+    # رسم بياني دائري باستخدام Plotly - توزيع الطلاب حسب التقدير
+    sizes_pie = summary_table.sum()
+    labels_pie = summary_table.columns
+
+    fig3 = go.Figure(data=[go.Pie(labels=labels_pie, values=sizes_pie, hole=.3)])
+    fig3.update_layout(title='توزيع الطلاب حسب التقدير')
+
+    st.write("### رسم بياني دائري لتوزيع الدرجات")
+    st.plotly_chart(fig3)
 
     # تصدير التقرير إلى PDF
     st.write("### تصدير التقرير بصيغة PDF")
@@ -89,8 +115,10 @@ if uploaded_file is not None:
             buf.seek(0)
             return base64.b64encode(buf.getvalue()).decode()
 
-        # تحويل الجدول إلى صورة Base64
-        table_image = fig_to_base64(fig)
+        # تحويل الرسوم البيانية إلى Base64
+        bar_chart_image = fig_to_base64(fig1)
+        percentage_chart_image = fig_to_base64(fig2)
+        pie_chart_image = fig_to_base64(fig3)
         
         # تحويل التقرير إلى HTML
         report_html = f"""
@@ -110,8 +138,12 @@ if uploaded_file is not None:
         {percentage_table.to_html()}
         <h2>الطلاب الحاصلين على تقدير غير مجتاز</h2>
         {non_passed_students.to_html()}
-        <h2>إحصائية التحليل</h2>
-        <img src="data:image/png;base64,{table_image}" alt="Analysis Table">
+        <h2>رسم بياني حسب عدد الطلاب لكل مادة</h2>
+        <img src="data:image/png;base64,{bar_chart_image}" alt="Bar Chart">
+        <h2>رسم بياني حسب نسبة الطلاب لكل مادة</h2>
+        <img src="data:image/png;base64,{percentage_chart_image}" alt="Percentage Chart">
+        <h2>رسم بياني دائري لتوزيع الدرجات</h2>
+        <img src="data:image/png;base64,{pie_chart_image}" alt="Pie Chart">
         </body>
         </html>
         """
