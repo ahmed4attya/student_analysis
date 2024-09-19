@@ -84,15 +84,14 @@ if uploaded_file is not None:
     fig3 = go.Figure(data=[go.Pie(labels=summary_table.columns, values=summary_table.sum())])
     fig3.update_layout(title='توزيع الطلاب حسب التقدير')
     st.plotly_chart(fig3)
-
-    # تصدير التقرير إلى PDF
+# تصدير التقرير إلى PDF
 st.write("### تصدير التقرير بصيغة PDF")
 
 if st.button("تصدير إلى PDF"):
     # تحويل الرسوم البيانية إلى HTML
-    bar_chart_html = fig_bar.to_html(full_html=False, include_plotlyjs='cdn')
-    percentage_chart_html = fig_percentage.to_html(full_html=False, include_plotlyjs='cdn')
-    pie_chart_html = fig_pie.to_html(full_html=False, include_plotlyjs='cdn')
+    bar_chart_html = fig_bar_chart.to_html(full_html=False, include_plotlyjs='cdn')
+    percentage_chart_html = fig_percentage_chart.to_html(full_html=False, include_plotlyjs='cdn')
+    pie_chart_html = fig_pie_chart.to_html(full_html=False, include_plotlyjs='cdn')
 
     # إنشاء التقرير HTML لتضمين الرسوم البيانية
     report_html = f"""
@@ -133,6 +132,9 @@ if st.button("تصدير إلى PDF"):
 
     # إنشاء PDF من HTML
     pdf_output = pdfkit.from_string(report_html, False, configuration=config)
+
+    # تقديم ملف PDF للتنزيل
+    st.download_button("تحميل التقرير بصيغة PDF", pdf_output, "تقرير_الطلاب.pdf", mime="application/pdf")
 
     # تقديم ملف PDF للتنزيل
     st.download_button("تحميل التقرير بصيغة PDF", pdf_output, "تقرير_الطلاب.pdf", mime="application/pdf")
