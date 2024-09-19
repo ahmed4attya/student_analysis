@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from matplotlib import font_manager
-import matplotlib.pyplot as plt
 from matplotlib import rcParams
-import pdfkit
 import subprocess
 
 def check_wkhtmltopdf():
@@ -17,14 +15,8 @@ def check_wkhtmltopdf():
     except Exception as e:
         return str(e)
 
+# تحقق من مسار wkhtmltopdf
 st.write("Path to wkhtmltopdf:", check_wkhtmltopdf())
-
-# استخدام المسار الصحيح على نظام Linux
-# config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
-
-# تعيين الخط الافتراضي لتجنب مشاكل الخطوط
-rcParams['font.sans-serif'] = ['Arial']
-rcParams['font.family'] = 'sans-serif'
 
 # إعداد البيانات والمخرجات
 st.title("تحليل نتائج الطلاب")
@@ -79,6 +71,8 @@ if uploaded_file is not None:
 
     # إعداد الخطوط في matplotlib
     font_properties = font_manager.FontProperties(fname=arabic_font_path)
+    rcParams['font.sans-serif'] = ['Amiri']  # استخدام الخط العربي لجميع النصوص
+    rcParams['font.family'] = 'sans-serif'
 
     # رسم بياني بناءً على عدد الطلاب لكل تقدير
     st.write("### رسم بياني حسب عدد الطلاب لكل مادة")
@@ -107,7 +101,7 @@ if uploaded_file is not None:
     fig, ax = plt.subplots()
     sizes_pie = summary_table.sum()  # مجموع الطلاب لكل تقدير
     labels_pie = summary_table.columns
-    ax.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=90)
+    ax.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=90, textprops=dict(fontproperties=font_properties))
     plt.title('توزيع الطلاب حسب التقدير', fontproperties=font_properties)
     st.pyplot(fig)
 
@@ -147,7 +141,7 @@ if uploaded_file is not None:
         <h2>رسم بياني حسب عدد الطلاب لكل مادة</h2>
         <img src="data:image/png;base64,{bar_chart_image}" alt="Bar Chart">
         <h2>رسم بياني حسب نسبة الطلاب لكل مادة</h2>
-        <img src="data:image/png;base64,{pie_chart_image}" alt="Pie Chart">
+        <img src="data:image/png;base64,{bar_chart_image}" alt="Bar Chart">
         <h2>رسم بياني دائري لتوزيع الدرجات</h2>
         <img src="data:image/png;base64,{pie_chart_image}" alt="Pie Chart">
         </body>
@@ -155,7 +149,7 @@ if uploaded_file is not None:
         """
         
         # إعداد مسار ملف wkhtmltopdf
-        # config = pdfkit.configuration(wkhtmltopdf='C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe')  # قم بتحديث المسار حسب التثبيت
+        config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
         
         # إنشاء PDF من HTML
         pdf_output = pdfkit.from_string(report_html, False, configuration=config)
