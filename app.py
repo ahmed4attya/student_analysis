@@ -67,7 +67,7 @@ if uploaded_file is not None:
     st.write(non_passed_students)
 
     # تحديد مسار الخط العربي
-    arabic_font_path = r'NotoNaskhArabic-Regular.ttf'  # قم بتحديث هذا المسار إلى مسار الخط العربي الصحيح
+    arabic_font_path = r'NotoNaskhArabic-VariableFont_wght.ttf'  # قم بتحديث هذا المسار إلى مسار الخط العربي الصحيح
 
     # إعداد الخطوط في matplotlib
     font_properties = font_manager.FontProperties(fname=arabic_font_path)
