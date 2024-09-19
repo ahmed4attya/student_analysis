@@ -5,6 +5,12 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from matplotlib import font_manager
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+
+# تعيين الخط الافتراضي لتجنب مشاكل الخطوط
+rcParams['font.sans-serif'] = ['Arial']
+rcParams['font.family'] = 'sans-serif'
 
 # إعداد البيانات والمخرجات
 st.title("تحليل نتائج الطلاب")
