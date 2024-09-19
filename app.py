@@ -89,6 +89,7 @@ if uploaded_file is not None:
 st.write("### تصدير التقرير بصيغة PDF")
 
 if st.button("تصدير إلى PDF"):
+ 
     # تحويل الرسوم البيانية إلى HTML
     bar_chart_html = fig_bar_chart.to_html(full_html=False, include_plotlyjs='cdn')
     percentage_chart_html = fig_percentage_chart.to_html(full_html=False, include_plotlyjs='cdn')
