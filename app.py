@@ -71,7 +71,20 @@ if uploaded_file is not None:
         | أقل درجة         | 25           |                  |               |
         """)
 
-    # رسم بياني بناءً على عدد الطلاب لكل تقدير باستخدام Plotly
+    # إضافة الفلتر لاختيار المادة والطلاب الضعاف
+    subject_selected = st.selectbox("اختر المادة لعرض الطلاب الضعاف:", df['المادة'].unique())
+
+    # تحديد الحد الأدنى للدرجة لتصنيف الطالب كضعيف
+    weak_grade_threshold = 50
+
+    # استخراج الطلاب الضعاف في المادة المحددة
+    weak_students = df[(df['المادة'] == subject_selected) & (df['الدرجة'] < weak_grade_threshold)]
+
+    # عرض الطلاب الضعاف
+    st.write(f"### الطلاب الضعاف في مادة {subject_selected}")
+    st.write(weak_students[['اسم الطالب', 'الدرجة']])
+
+    # رسم بياني ثلاثي الأبعاد بناءً على عدد الطلاب لكل تقدير باستخدام Plotly
     st.write("### رسم بياني ثلاثي الأبعاد حسب عدد الطلاب لكل مادة")
     fig_bar = go.Figure()
 
@@ -129,19 +142,6 @@ if uploaded_file is not None:
                      title='توزيع الطلاب حسب التقدير', color_discrete_sequence=['red', 'purple', 'green', 'blue'])
     fig_pie.update_traces(textfont_size=18, textposition='inside')
     st.plotly_chart(fig_pie)
-
-    # إضافة خيار لاختيار المادة
-    subject_selected = st.selectbox("اختر المادة لعرض الطلاب الضعاف:", df['المادة'].unique())
-
-    # تحديد الحد الأدنى للدرجة لتصنيف الطالب كضعيف
-    weak_grade_threshold = 50
-
-    # استخراج الطلاب الضعاف في المادة المحددة
-    weak_students = df[(df['المادة'] == subject_selected) & (df['الدرجة'] < weak_grade_threshold)]
-
-    # عرض الطلاب الضعاف
-    st.write(f"### الطلاب الضعاف في مادة {subject_selected}")
-    st.write(weak_students[['اسم الطالب', 'الدرجة']])
 
     # تصدير التقرير إلى PDF
     st.write("### تصدير التقرير بصيغة PDF")
