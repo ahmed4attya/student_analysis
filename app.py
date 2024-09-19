@@ -101,7 +101,15 @@ if uploaded_file is not None:
     st.write("### رسم بياني ثلاثي الأبعاد حسب عدد الطلاب لكل مادة")
     fig_bar = go.Figure()
 
-    for grade, color in zip(labels, ['red', 'purple', 'green', 'blue']):
+    # رسم الأعمدة لكل تقدير مع الألوان المحددة
+    colors = {
+        'غير مجتاز': 'red',
+        'متمكن': 'purple',
+        'متقدم': 'green',
+        'متفوق': 'blue'
+    }
+
+    for grade, color in colors.items():
         fig_bar.add_trace(go.Bar(
             x=summary_table.index,
             y=summary_table[grade],
@@ -127,7 +135,8 @@ if uploaded_file is not None:
     st.write("### رسم بياني ثلاثي الأبعاد حسب نسبة الطلاب لكل مادة")
     fig_percentage = go.Figure()
 
-    for grade, color in zip(labels, ['red', 'purple', 'green', 'blue']):
+    # رسم الأعمدة لكل تقدير مع الألوان المحددة
+    for grade, color in colors.items():
         fig_percentage.add_trace(go.Bar(
             x=percentage_table.index,
             y=percentage_table[grade],
@@ -182,7 +191,12 @@ if uploaded_file is not None:
         {percentage_table.to_html()}
         <h2>الطلاب الحاصلين على تقدير غير مجتاز</h2>
         {non_passed_students.to_html()}
-        <h2>رسم بياني حسب عدد الطلاب لكل مادة</h2>
+        <h2>إحصائية التحليل</h2>
+        {pd.DataFrame({
+            'المؤشر': ['مجموع الدرجات', 'عدد الطلبة', 'المتوسط الحسابي', 'الوسيط', 'الأكثر تكراراً', 'أعلى درجة', 'أقل درجة', 'نسبة التفوق', 'نسبة الضعف'],
+            'القيمة': [total_scores, student_count, f'{average_score:.2f}', median_score, mode_score, max_score, min_score, f'{excellence_percentage:.2f}%', f'{weakness_percentage:.2f}%']
+        }).to_html(index=False)}
+        <h2>رسم بياني ثلاثي الأبعاد حسب عدد الطلاب لكل مادة</h2>
         {bar_chart_html}
         <h2>رسم بياني دائري لتوزيع الدرجات</h2>
         {pie_chart_html}
@@ -190,13 +204,12 @@ if uploaded_file is not None:
         </html>
         """
 
-        # تصدير التقرير إلى ملف PDF
-        pdfkit.from_string(report_html, 'report.pdf')
+        # تحويل HTML إلى PDF
+        pdfkit.from_string(report_html, '/tmp/report.pdf')
 
-        with open("report.pdf", "rb") as pdf_file:
-            PDFbyte = pdf_file.read()
-
-        # تنزيل ملف PDF
-        b64 = base64.b64encode(PDFbyte).decode()
-        href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
-        st.markdown(href, unsafe_allow_html=True)
+        # تحميل الملف PDF
+        with open('/tmp/report.pdf', 'rb') as f:
+            PDFbyte = f.read()
+            b64 = base64.b64encode(PDFbyte).decode()
+            href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
+            st.markdown(href, unsafe_allow_html=True)
