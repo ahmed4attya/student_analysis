@@ -8,6 +8,16 @@ from matplotlib import font_manager
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import pdfkit
+import subprocess
+
+def check_wkhtmltopdf():
+    try:
+        result = subprocess.run(['which', 'wkhtmltopdf'], capture_output=True, text=True)
+        return result.stdout.strip()
+    except Exception as e:
+        return str(e)
+
+st.write("Path to wkhtmltopdf:", check_wkhtmltopdf())
 
 # استخدام المسار الصحيح على نظام Linux
 config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
