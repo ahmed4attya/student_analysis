@@ -7,6 +7,10 @@ import base64
 from matplotlib import font_manager
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+import pdfkit
+
+# استخدام المسار الصحيح على نظام Linux
+config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
 
 # تعيين الخط الافتراضي لتجنب مشاكل الخطوط
 rcParams['font.sans-serif'] = ['Arial']
@@ -141,7 +145,7 @@ if uploaded_file is not None:
         """
         
         # إعداد مسار ملف wkhtmltopdf
-        config = pdfkit.configuration(wkhtmltopdf='C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe')  # قم بتحديث المسار حسب التثبيت
+        # config = pdfkit.configuration(wkhtmltopdf='C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe')  # قم بتحديث المسار حسب التثبيت
         
         # إنشاء PDF من HTML
         pdf_output = pdfkit.from_string(report_html, False, configuration=config)
