@@ -79,6 +79,20 @@ if uploaded_file is not None:
     }
     stats_df = pd.DataFrame(stats, index=[0])
 
+
+    # إضافة خيار لاختيار المادة
+subject_selected = st.selectbox("اختر المادة:", df['المادة'].unique())
+
+# تحديد الحد الأدنى للدرجة لتصنيف الطالب كضعيف
+weak_grade_threshold = 50
+
+# استخراج الطلاب الضعاف في المادة المحددة
+weak_students = df[(df['المادة'] == subject_selected) & (df['الدرجة'] < weak_grade_threshold)]
+
+# عرض الطلاب الضعاف
+st.write(f"### الطلاب الضعاف في مادة {subject_selected}")
+st.write(weak_students[['اسم الطالب', 'الدرجة']])
+
     # رسم بياني بناءً على عدد الطلاب لكل تقدير
     st.write("### رسم بياني حسب عدد الطلاب لكل مادة")
     fig_bar_chart = go.Figure()
