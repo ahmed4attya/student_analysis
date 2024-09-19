@@ -1,8 +1,5 @@
 import weasyprint
 import base64
-import pandas as pd
-import plotly.graph_objects as go
-import streamlit as st
 
 # إعداد البيانات والمخرجات
 st.title("تحليل نتائج الطلاب")
@@ -106,7 +103,8 @@ if uploaded_file is not None:
         st.plotly_chart(fig, use_container_width=True)
 
     # تحويل الرسوم البيانية إلى HTML
-    bar_chart_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
+    bar_chart_html = fig_bar_chart.to_html(full_html=False, include_plotlyjs='cdn')
+    pie_chart_html = fig_pie_chart.to_html(full_html=False, include_plotlyjs='cdn')
     
     # تحويل التقرير إلى HTML لاستخدامه في التصدير
     report_html = f"""
@@ -130,20 +128,21 @@ if uploaded_file is not None:
     {analysis_stats.to_html()}
     <h2>رسم بياني حسب عدد الطلاب لكل مادة</h2>
     {bar_chart_html}
+    <h2>رسم بياني حسب نسبة الطلاب لكل مادة</h2>
+    {bar_chart_html}
+    <h2>رسم بياني دائري لتوزيع الدرجات</h2>
+    {pie_chart_html}
     </body>
     </html>
     """
 
     # تحويل HTML إلى PDF باستخدام weasyprint
-    try:
-        pdf_file = '/tmp/report.pdf'
-        weasyprint.HTML(string=report_html).write_pdf(pdf_file)
+    pdf_file = '/tmp/report.pdf'
+    weasyprint.HTML(string=report_html).write_pdf(pdf_file)
 
-        # تحميل الملف PDF
-        with open(pdf_file, 'rb') as f:
-            PDFbyte = f.read()
-            b64 = base64.b64encode(PDFbyte).decode()
-            href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
-            st.markdown(href, unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"حدث خطأ أثناء إنشاء ملف PDF: {e}")
+    # تحميل الملف PDF
+    with open(pdf_file, 'rb') as f:
+        PDFbyte = f.read()
+        b64 = base64.b64encode(PDFbyte).decode()
+        href = f'<a href="data:application/octet-stream;base64,{b64}" download="report.pdf">تحميل التقرير بصيغة PDF</a>'
+        st.markdown(href, unsafe_allow_html=True)
