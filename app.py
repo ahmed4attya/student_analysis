@@ -1,11 +1,9 @@
 import pandas as pd
 import streamlit as st
 import pdfkit
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import io
 import base64
-from matplotlib import font_manager
-from matplotlib import rcParams
 import subprocess
 
 def check_wkhtmltopdf():
@@ -66,44 +64,53 @@ if uploaded_file is not None:
     st.write("### الطلاب الحاصلين على تقدير غير مجتاز")
     st.write(non_passed_students)
 
-    # تحديد مسار الخط العربي
-    arabic_font_path = r'NotoNaskhArabic-VariableFont_wght.ttf'  # قم بتحديث هذا المسار إلى مسار الخط العربي الصحيح
-
-    # إعداد الخطوط في matplotlib
-    font_properties = font_manager.FontProperties(fname=arabic_font_path)
-    rcParams['font.sans-serif'] = ['Amiri']  # استخدام الخط العربي لجميع النصوص
-    rcParams['font.family'] = 'sans-serif'
-
-    # رسم بياني بناءً على عدد الطلاب لكل تقدير
+    # رسم بياني باستخدام Plotly بناءً على عدد الطلاب لكل تقدير
     st.write("### رسم بياني حسب عدد الطلاب لكل مادة")
-    fig, ax = plt.subplots()
-    summary_table.plot(kind='bar', stacked=True, ax=ax)
-    plt.title('عدد الطلاب لكل تقدير حسب المادة', fontproperties=font_properties)
-    plt.xlabel('المادة', fontproperties=font_properties)
-    plt.ylabel('عدد الطلاب', fontproperties=font_properties)
-    plt.xticks(rotation=45, ha='right', fontproperties=font_properties)
-    plt.tight_layout()
-    st.pyplot(fig)
+    fig = go.Figure()
+    for label in labels:
+        fig.add_trace(go.Bar(
+            x=summary_table.index,
+            y=summary_table[label],
+            name=label
+        ))
+    fig.update_layout(
+        title='عدد الطلاب لكل تقدير حسب المادة',
+        xaxis_title='المادة',
+        yaxis_title='عدد الطلاب',
+        barmode='stack',
+        xaxis={'title_font': {'family': 'Arial', 'size': 18, 'color': 'RebeccaPurple'}},
+        yaxis={'title_font': {'family': 'Arial', 'size': 18, 'color': 'RebeccaPurple'}}
+    )
+    st.plotly_chart(fig)
 
-    # رسم بياني بناءً على نسبة الطلاب لكل تقدير
+    # رسم بياني باستخدام Plotly بناءً على نسبة الطلاب لكل تقدير
     st.write("### رسم بياني حسب نسبة الطلاب لكل مادة")
-    fig, ax = plt.subplots()
-    percentage_table.plot(kind='bar', stacked=True, ax=ax)
-    plt.title('نسبة الطلاب لكل تقدير حسب المادة', fontproperties=font_properties)
-    plt.xlabel('المادة', fontproperties=font_properties)
-    plt.ylabel('نسبة الطلاب (%)', fontproperties=font_properties)
-    plt.xticks(rotation=45, ha='right', fontproperties=font_properties)
-    plt.tight_layout()
-    st.pyplot(fig)
+    fig = go.Figure()
+    for label in labels:
+        fig.add_trace(go.Bar(
+            x=percentage_table.index,
+            y=percentage_table[label],
+            name=label
+        ))
+    fig.update_layout(
+        title='نسبة الطلاب لكل تقدير حسب المادة',
+        xaxis_title='المادة',
+        yaxis_title='نسبة الطلاب (%)',
+        barmode='stack',
+        xaxis={'title_font': {'family': 'Arial', 'size': 18, 'color': 'RebeccaPurple'}},
+        yaxis={'title_font': {'family': 'Arial', 'size': 18, 'color': 'RebeccaPurple'}}
+    )
+    st.plotly_chart(fig)
 
-    # رسم بياني دائري (ثنائي الأبعاد)
+    # رسم بياني دائري باستخدام Plotly لتوزيع الدرجات
     st.write("### رسم بياني دائري لتوزيع الدرجات")
-    fig, ax = plt.subplots()
-    sizes_pie = summary_table.sum()  # مجموع الطلاب لكل تقدير
-    labels_pie = summary_table.columns
-    ax.pie(sizes_pie, labels=labels_pie, autopct='%1.1f%%', startangle=90, textprops=dict(fontproperties=font_properties))
-    plt.title('توزيع الطلاب حسب التقدير', fontproperties=font_properties)
-    st.pyplot(fig)
+    sizes_pie = summary_table.sum()
+    fig = go.Figure(data=[go.Pie(labels=summary_table.columns, values=sizes_pie)])
+    fig.update_layout(
+        title='توزيع الطلاب حسب التقدير',
+        title_font={'family': 'Arial', 'size': 18, 'color': 'RebeccaPurple'}
+    )
+    st.plotly_chart(fig)
 
     # تصدير التقرير إلى PDF
     st.write("### تصدير التقرير بصيغة PDF")
@@ -112,7 +119,7 @@ if uploaded_file is not None:
         # تحويل الرسوم البيانية إلى صور Base64
         def fig_to_base64(fig):
             buf = io.BytesIO()
-            fig.savefig(buf, format='png')
+            fig.write_image(buf, format='png')
             buf.seek(0)
             return base64.b64encode(buf.getvalue()).decode()
 
