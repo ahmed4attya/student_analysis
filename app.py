@@ -41,8 +41,24 @@ if uploaded_file is not None:
         st.write("### جدول نسبة الطلاب الحاصلين على تقدير معين")
         st.write(percentage_table)
 
-    st.write("### الطلاب الحاصلين على تقدير غير مجتاز")
-    st.write(non_passed_students)
+    # عرض الجدولين بجانب بعضهما البعض: "الطلاب الحاصلين على تقدير غير مجتاز" و "إحصائية التحليل"
+    st.write("### الجداول الإضافية")
+    col3, col4 = st.columns(2)
+
+    with col3:
+        st.write("### الطلاب الحاصلين على تقدير غير مجتاز")
+        st.write(non_passed_students)
+
+    with col4:
+        st.write("### إحصائية التحليل")
+        analysis_stats = {
+            '': ['مجموع الدرجات', 'عدد الطلبة', 'المتوسط الحسابي', 'اعلى درجة', 'اقل درجة'],
+            'القيم': [530, 14, 37.86, 40, 25],
+            '': ['الأكثر تكراراً', 'الوسيط', 'نسبة التفوق', 'نسبة الضعف'],
+            'القيم': [40, 40, '78.57%', '0.00%']
+        }
+        stats_df = pd.DataFrame(analysis_stats)
+        st.write(stats_df)
 
     # رسم بياني باستخدام Plotly
     st.write("### رسم بياني حسب عدد الطلاب لكل مادة")
@@ -68,17 +84,6 @@ if uploaded_file is not None:
     fig3 = go.Figure(data=[go.Pie(labels=summary_table.columns, values=summary_table.sum())])
     fig3.update_layout(title='توزيع الطلاب حسب التقدير')
     st.plotly_chart(fig3)
-
-    # إضافة جدول إحصائية التحليل
-    st.write("### إحصائية التحليل")
-    analysis_stats = {
-        '': ['مجموع الدرجات', 'عدد الطلبة', 'المتوسط الحسابي', 'اعلى درجة', 'اقل درجة'],
-        'القيم': [530, 14, 37.86, 40, 25],
-        '': ['الأكثر تكراراً', 'الوسيط', 'نسبة التفوق', 'نسبة الضعف'],
-        'القيم': [40, 40, '78.57%', '0.00%']
-    }
-    stats_df = pd.DataFrame(analysis_stats)
-    st.write(stats_df)
 
     # تصدير التقرير إلى PDF
     st.write("### تصدير التقرير بصيغة PDF")
